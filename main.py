@@ -36,7 +36,7 @@ def insert_data(data, table):
     for item in data:
         added_value1 = item[table]
         if table == 'genre' or table == 'singer':
-            request_ = f'''
+            request_1 = f'''
             INSERT INTO {table} 
             VALUES({id_count}, '{added_value1}');'''
         elif table == 'album' or table == 'collection':
@@ -108,10 +108,11 @@ def insert_data(data, table):
             WHERE name = '{album_name}';'''
             album_id_ = connection.execute(request_album_id).fetchone()
             added_value3 = album_id_[0]
-            request_ = f'''
+            request_1 = f'''
             INSERT INTO {table} 
             VALUES({id_count}, '{added_value1}','{added_value2}','{added_value3}');'''
         if request_1:
+            connection_execute(request_1, added_value1)
             try:
                 connection.execute(request_1)
             except sqlalchemy.exc.IntegrityError:
@@ -119,13 +120,13 @@ def insert_data(data, table):
             else:
                 id_count += 1
         if request_2:
-            connection.execute(request_1)
+            connection.execute(request_2)
     check = f'''SELECT * from {table}'''
     return connection.execute(check).fetchall()
 
 
 def match_tables(data, tables):
-    _id, id_ = None, None
+    _id = None
     table_name = tables[0] + tables[1]
     for tune in data:
         id_ = []
@@ -154,15 +155,6 @@ def match_tables(data, tables):
                     _id = _id[0]
             id_.append(_id)
         generate_math_request(id_, table_name)
-    #     i_request = f'''
-    #     INSERT INTO {table_name}
-    #     VALUES({id_[0]},{id_[1]});'''
-    #     try:
-    #         connection.execute(i_request)
-    #     except sqlalchemy.exc.IntegrityError:
-    #         print('Нарушение уникальности ', tune['track'])
-    # check = f'''SELECT * from singergenre'''
-    # print(connection.execute(check).fetchall())
     return True
 
 
@@ -178,11 +170,12 @@ def connection_execute(insert_request, mark):
     return inserted
 
 
-def generate_math_request(inserted_data, table_name, mark=''):
+def generate_math_request(inserted_data, table_name):
     for data in inserted_data[0]:
         insert_request = f'''
         INSERT INTO {table_name}
         VALUES({data},{inserted_data[1]});'''
+        mark = f'таблица: {table_name}, данные: {data}, {inserted_data[1]}'
         connection_execute(insert_request, mark)
     return True
 
