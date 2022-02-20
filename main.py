@@ -2,7 +2,7 @@ import sqlalchemy
 from create_tables import sql_create
 from tunes import tunes_catalog, tunes_collection
 
-tunes_db = 'postgresql://tunes_user:143180@localhost:5432/tunes'
+tunes_db = 'postgresql://tunes_user:123456@localhost:5432/tunes'
 engine = sqlalchemy.create_engine(tunes_db)
 connection = engine.connect()
 
