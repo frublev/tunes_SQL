@@ -125,8 +125,8 @@ def insert_data(data, table):
 
 
 def match_tables(data, tables):
-    s_request, _id = None, None
-    table_name = tables[0]+tables[1]
+    _id, id_ = None, None
+    table_name = tables[0] + tables[1]
     for tune in data:
         id_ = []
         for table in tables:
@@ -148,10 +148,12 @@ def match_tables(data, tables):
                 SELECT id from {table} 
                 WHERE name = '{tune[table]}';'''
                 _id = connection.execute(s_request).fetchone()
-                _id = _id[0]
-                print(tune['collection'])
+                if table == 'singer':
+                    _id = [_id[0]]
+                else:
+                    _id = _id[0]
             id_.append(_id)
-        print(id_)
+        generate_math_request(id_, table_name)
     #     i_request = f'''
     #     INSERT INTO {table_name}
     #     VALUES({id_[0]},{id_[1]});'''
@@ -164,8 +166,28 @@ def match_tables(data, tables):
     return True
 
 
-order_match = [['singer', 'genre'], ['track', 'collection']]
+def connection_execute(insert_request, mark):
+    inserted = False
+    try:
+        connection.execute(insert_request)
+    except sqlalchemy.exc.IntegrityError:
+        print('Нарушение уникальности ', mark)
+    else:
+        print(insert_request)
+        inserted = True
+    return inserted
 
+
+def generate_math_request(inserted_data, table_name, mark=''):
+    for data in inserted_data[0]:
+        insert_request = f'''
+        INSERT INTO {table_name}
+        VALUES({data},{inserted_data[1]});'''
+        connection_execute(insert_request, mark)
+    return True
+
+
+order_match = [['singer', 'genre'], ['track', 'collection']]
 
 if __name__ == "__main__":
     # delete_all_tables()
