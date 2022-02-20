@@ -80,7 +80,8 @@ def insert_data(data, table):
                                 request_insert = f'''
                                 INSERT INTO singeralbum 
                                 VALUES({singer_id}, {album_id[0]});'''
-                                connection.execute(request_insert)
+                                mark = f'таблица: singeralbum, данные: {singer_id}, {album_id[0]}'
+                                connection_execute(request_insert, mark)
                             elif q == 'n':
                                 album_in_db = False
                                 stop -= 1
@@ -112,15 +113,11 @@ def insert_data(data, table):
             INSERT INTO {table} 
             VALUES({id_count}, '{added_value1}','{added_value2}','{added_value3}');'''
         if request_1:
-            connection_execute(request_1, added_value1)
-            try:
-                connection.execute(request_1)
-            except sqlalchemy.exc.IntegrityError:
-                print('Нарушение уникальности ', added_value1)
-            else:
+            insert_check = connection_execute(request_1, added_value1)
+            if insert_check:
                 id_count += 1
         if request_2:
-            connection.execute(request_2)
+            connection_execute(request_2, added_value1)
     check = f'''SELECT * from {table}'''
     return connection.execute(check).fetchall()
 
@@ -180,15 +177,18 @@ def generate_math_request(inserted_data, table_name):
     return True
 
 
+order = ['singer', 'genre', 'album', 'track']
 order_match = [['singer', 'genre'], ['track', 'collection']]
 
 if __name__ == "__main__":
-    # delete_all_tables()
-    # create_tables(connection, sql_create)
-    # for o in order:
-    #     print(insert_data(tunes_catalog, o))
-    # print(insert_data(tunes_catalog, 'track'))
+    delete_all_tables()
+    create_tables(connection, sql_create)
+    for o in order:
+        print(insert_data(tunes_catalog, o))
+    print(insert_data(tunes_collection, 'collection'))
+    match_tables(tunes_catalog, ['singer', 'genre'])
     match_tables(tunes_collection, ['track', 'collection'])
+
     # print(insert_data(tunes_collection, 'collection'))
 
 # a = match_tables(pare)
