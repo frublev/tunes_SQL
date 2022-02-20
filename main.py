@@ -2,7 +2,7 @@ import sqlalchemy
 from create_tables import sql_create
 from tunes import tunes_catalog, tunes_collection
 
-tunes_db = 'postgresql://tunes_user:123456@localhost:5432/tunes'
+tunes_db = 'postgresql://tunes_user:143180@localhost:5432/tunes'
 engine = sqlalchemy.create_engine(tunes_db)
 connection = engine.connect()
 
@@ -131,23 +131,27 @@ def match_tables(data, tables):
         id_ = []
         for table in tables:
             if table == 'track':
+                _id = []
                 for track in tune['tracks']:
-                    s_request = f'''
+                    s_request0 = f'''
+                    SELECT id from album 
+                    WHERE name = '{track[1]}';'''
+                    id_album = connection.execute(s_request0).fetchone()
+                    id_album = id_album[0]
+                    s_request1 = f'''
                     SELECT id, id_album from {table} 
-                    WHERE name = '{track[0]}';'''
-                    track_id_album = connection.execute(s_request).fetchall()
-                    _id = None
-                    for track_in_db in track_id_album:
-                        if track_in_db[0][1] == track[1]:
-                            _id = track_in_db[0]
-                            print(_id)
+                    WHERE name = '{track[0]}' AND id_album = {id_album};'''
+                    id_track = connection.execute(s_request1).fetchone()
+                    _id.append(id_track[0])
             else:
                 s_request = f'''
                 SELECT id from {table} 
                 WHERE name = '{tune[table]}';'''
                 _id = connection.execute(s_request).fetchone()
                 _id = _id[0]
+                print(tune['collection'])
             id_.append(_id)
+        print(id_)
     #     i_request = f'''
     #     INSERT INTO {table_name}
     #     VALUES({id_[0]},{id_[1]});'''
